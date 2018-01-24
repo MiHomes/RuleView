@@ -11,7 +11,7 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Scroller;
- 
+
 
 /**
  * @author Gimpo create on 2017/10/26 14:24
