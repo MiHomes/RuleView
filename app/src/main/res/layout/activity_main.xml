@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
+    tools:context="com.example.pc.ruleviewdemo.MainActivity">
+
+    <TextView
+        android:id="@+id/tv_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_gravity="center"/>
+    <LinearLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="140px"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="29px"
+        android:background="@drawable/line_linear"
+        >
+
+        <com.example.pc.ruleviewdemo.RulerView
+            android:id="@+id/rulerView_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="130px" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginLeft="100px"
+        android:layout_marginTop="50px"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_vertical"
+            android:layout_marginTop="330px"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"/>
+        <LinearLayout
+            android:layout_width="180px"
+            android:layout_height="700px"
+            android:orientation="vertical"
+            android:layout_marginLeft="100px"
+            android:layout_marginTop="50px"
+            android:background="@drawable/line_linear"
+            >
+            <com.example.pc.ruleviewdemo.VerticalRulerView
+                android:id="@+id/rulerView_vertical"
+                android:layout_width="180px"
+                android:layout_height="700px" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
