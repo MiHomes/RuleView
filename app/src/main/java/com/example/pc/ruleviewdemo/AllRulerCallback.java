@@ -1,4 +1,4 @@
-package com.example.ruleview;
+package com.example.pc.ruleviewdemo;
 
 /**
  * @author Gimpo create on 2017/10/27 14:33

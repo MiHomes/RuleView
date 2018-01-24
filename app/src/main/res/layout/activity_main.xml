@@ -26,7 +26,7 @@
         android:background="@drawable/line_linear"
         >
 
-        <com.example.ruleview.RulerView
+        <com.example.pc.ruleviewdemo.RulerView
             android:id="@+id/rulerView_horizontal"
             android:layout_width="match_parent"
             android:layout_height="130px" />
@@ -52,7 +52,7 @@
             android:layout_marginTop="50px"
             android:background="@drawable/line_linear"
             >
-            <com.example.ruleview.VerticalRulerView
+            <com.example.pc.ruleviewdemo.VerticalRulerView
                 android:id="@+id/rulerView_vertical"
                 android:layout_width="180px"
                 android:layout_height="700px" />

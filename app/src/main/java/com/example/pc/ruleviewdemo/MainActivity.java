@@ -4,10 +4,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.example.ruleview.AllRulerCallback;
-import com.example.ruleview.RulerView;
-import com.example.ruleview.VerticalRulerView;
-
 public class MainActivity extends AppCompatActivity {
 
     private TextView tvhorizontal;

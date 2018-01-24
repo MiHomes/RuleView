@@ -1,4 +1,4 @@
-package com.example.ruleview;
+package com.example.pc.ruleviewdemo;
 
 import android.content.Context;
 import android.graphics.Canvas;
