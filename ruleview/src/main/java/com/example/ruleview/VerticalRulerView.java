@@ -13,7 +13,7 @@ import android.view.ViewConfiguration;
 import android.widget.Scroller;
 
 /**
- * Created by pc on 2018/1/9.
+ * Created by pc on 2018/1/24.
  */
 
 public class VerticalRulerView extends View{
@@ -109,7 +109,7 @@ public class VerticalRulerView extends View{
             int lineHeight = 30;
             if (i % interval == 0) {
                 lineHeight = 70;
-                int y = (i - startValue ) * space;
+                 int y = (i - startValue ) * space;
                 if (y > 0 || y < height) {
                     canvas.drawText(String.valueOf(i ),0, y +
                             textOffset, txtPaint);
@@ -190,7 +190,7 @@ public class VerticalRulerView extends View{
     public void computeScroll() {
         if (mScroller.computeScrollOffset()) {
             int x = mScroller.getCurrY();
-            scrollTo(0, x);
+            scrollTo(0,x);
             computeAndCallback(x);
             postInvalidate();
         } else {
@@ -199,7 +199,7 @@ public class VerticalRulerView extends View{
                 if (x % space != 0) {
                     x -= x % space;
                 }
-                scrollTo(0, x);
+                scrollTo(0,x);
                 computeAndCallback(x);
                 postInvalidate();
             }
@@ -231,7 +231,7 @@ public class VerticalRulerView extends View{
     /**
      * 惯性滑动
      *
-     * @param velocityY
+     *
      */
     public void flingY(int velocityY) {
         mScroller.fling(getScrollX(), getScrollY(), 0, velocityY, 0, 0, -BASELINE_OFFSET, (endValue - startValue) * space  - BASELINE_OFFSET);
@@ -243,7 +243,7 @@ public class VerticalRulerView extends View{
     /**
      * 计算并回调位置信息
      *
-     * @param scrollX
+     *
      */
     private void computeAndCallback(int scrollX) {
         if (mListener != null) {
@@ -261,7 +261,7 @@ public class VerticalRulerView extends View{
     /**
      * 设置number的值
      *
-     * @param number
+     *
      */
     public void setNumber(int number) {
         this.number = number;
@@ -269,7 +269,7 @@ public class VerticalRulerView extends View{
     /**
      * 设置刻度尺的最小值
      *
-     * @param min
+     *
      */
     public void setMin(int min){
         this.startValue = min;
@@ -278,7 +278,7 @@ public class VerticalRulerView extends View{
     /**
      * 设置刻度尺的最大值
      *
-     * @param max
+     *
      */
     public void setMax(int max){
         this.endValue = max;
@@ -287,7 +287,7 @@ public class VerticalRulerView extends View{
     /**
      * 设置刻度尺的数字显示间距值
      *
-     * @param interval
+     *
      */
     public void setInterval(int interval){
         this.interval = interval;
