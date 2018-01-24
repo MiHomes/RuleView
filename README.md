@@ -1,8 +1,10 @@
 # RuleView
 这是一个可用于选择身高体重的横向竖向刻度尺
 
+
 V1.0.0
-当前提供可设置的属性为：
+
+前提供可设置的属性为：
 
         RullView.setMin(100);   //设置刻度尺最小值
         RullView.setMax(250);   //设置刻度尺最大值
@@ -19,3 +21,5 @@ V1.0.0
                 String number = String.valueOf(value);
             }
         });
+
+效果图可访问简书地址：https://www.jianshu.com/p/b4db13544620
