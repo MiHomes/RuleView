@@ -1,4 +1,4 @@
-package com.example.pc.ruleviewdemo;
+package com.example.ruleview;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -12,21 +12,28 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Scroller;
 
+
 /**
- * Created by pc on 2018/1/9.
+ * @author Gimpo create on 2017/10/26 14:24
+ * @email : jimbo922@163.com
  */
 
-public class VerticalRulerView extends View{
+/**
+ * 尺图
+ */
+public class RulerView extends View {
     private Context mContext;
-    private Paint centerLinePaint;
-    private Paint grayLinePaint;
-    private Paint txtPaint;
-    private int space = 30;
-    private int startValue = 100;
-    private int endValue = 250;
+    private Paint centerLinePaint;  //中间刻度值画笔
+    private Paint grayLinePaint;    //主画笔
+    private Paint txtPaint;         //文字画笔
+    private Paint currentTextPaint; //选中刻度画笔
+
+    private int space = 50;
+    private int startValue = 1900;
+    private int endValue = 2018;
     private int width;
     private int height;
-    private float mLastY;
+    private float mLastX;
     private int touchSlop;
     private Scroller mScroller;
     private int mMinimumVelocity;
@@ -38,14 +45,15 @@ public class VerticalRulerView extends View{
     private AllRulerCallback mListener;
     private int number;
     private int BASELINE_OFFSET;
-    private int interval;
-    private int textOffset;
+    private int interval = 5;
+    private int textOffset = 50;
+    private int mCountScale;
 
-    public VerticalRulerView(Context context) {
+    public RulerView(Context context) {
         this(context, null);
     }
 
-    public VerticalRulerView(Context context, @Nullable AttributeSet attrs) {
+    public RulerView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context, attrs);
     }
@@ -67,6 +75,12 @@ public class VerticalRulerView extends View{
         txtPaint.setColor(getResources().getColor(R.color.age_text));
         txtPaint.setTextSize(50);
 
+        currentTextPaint = new Paint();
+        currentTextPaint.setAntiAlias(true);
+        currentTextPaint.setColor(getResources().getColor(R.color.white));
+        currentTextPaint.setTextSize(50);
+        currentTextPaint.setStrokeWidth(5);
+
         // 新增部分 start
         ViewConfiguration viewConfiguration = ViewConfiguration.get(mContext);
         touchSlop = viewConfiguration.getScaledTouchSlop();
@@ -83,22 +97,22 @@ public class VerticalRulerView extends View{
         if (widthMode == MeasureSpec.EXACTLY) {
             width = MeasureSpec.getSize(widthMeasureSpec);
         } else {
-            width = (int) (mContext.getResources().getDisplayMetrics().density * 200 + 0.5);
+            width = mContext.getResources().getDisplayMetrics().widthPixels;
         }
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         if (heightMode == MeasureSpec.EXACTLY) {
             height = MeasureSpec.getSize(heightMeasureSpec);
         } else {
-            height = mContext.getResources().getDisplayMetrics().heightPixels;
+            height = (int) (mContext.getResources().getDisplayMetrics().density * 200 + 0.5);
         }
         setMeasuredDimension(width, height);
 
-        BASELINE_OFFSET = height / 2;
+        BASELINE_OFFSET = width / 2;
         int x = (number - startValue) * space  - BASELINE_OFFSET + BASELINE_OFFSET % space;
         if (x % space != 0) {
             x -= x % space;
         }
-        scrollTo(0,x);
+        scrollTo(x, 0);
         computeAndCallback(x);
     }
 
@@ -106,36 +120,51 @@ public class VerticalRulerView extends View{
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         for (int i = startValue ; i < endValue  + 1; i++) {
-            int lineHeight = 30;
+            int lineHeight = 50;
             if (i % interval == 0) {
-                lineHeight = 70;
-                int y = (i - startValue ) * space;
-                if (y > 0 || y < height) {
-                    canvas.drawText(String.valueOf(i ),0, y +
-                            textOffset, txtPaint);
+                lineHeight = 80;
+                int x = (i - startValue ) * space;
+                if (x > 0 || x < width) {
+                    canvas.drawText(String.valueOf(i ), x-textOffset, lineHeight + 50, txtPaint);
                 }
-            }else if (i % 5 == 0){
-                lineHeight = 50;
             }
 
-            int startY = (i - startValue) * space;
-            if (startY > 0 || startY < height) {
-                //从控件宽度-linHeight画到控件宽度
-                canvas.drawLine(getMeasuredWidth()-lineHeight, startY,getMeasuredWidth()-2,startY, grayLinePaint);
+            int startX = (i - startValue) * space;
+            if (startX > 0 || startX < width) {
+                canvas.drawLine(startX, 2, startX, lineHeight, grayLinePaint);
             }
         }
-        int startX = BASELINE_OFFSET + getScrollY() - BASELINE_OFFSET % space;
+
+
+
+        int startX = BASELINE_OFFSET + getScrollX() - BASELINE_OFFSET % space;
         centerLinePaint.setStyle(Paint.Style.FILL);
         Path path = new Path();
-        path.moveTo(getMeasuredWidth(), startX - 10);
-        path.lineTo(getMeasuredWidth(), startX + 10);
-        path.lineTo(getMeasuredWidth()-15,startX );
+        path.moveTo(startX - 10, 0);
+        path.lineTo(startX + 10, 0);
+        path.lineTo(startX, 15);
         path.close();
         canvas.drawPath(path, centerLinePaint);
         // 空心
         centerLinePaint.setStyle(Paint.Style.STROKE);
-    }
 
+        /*//每一屏幕刻度的个数/2
+        int countScale = BASELINE_OFFSET/space;
+        //根据滑动的距离，计算指针的位置【指针始终位于屏幕中间】
+        int finalX = mScroller.getFinalX();
+        //滑动的刻度
+        int tmpCountScale = (int) Math.rint((double) finalX / (double) space); //四舍五入取整
+        //总刻度
+        mCountScale = tmpCountScale + countScale + startValue;
+        //当处于某个整数，就绘制白色的发光文字和刻度,mCountScale是显示的即时数字
+        int x = (mCountScale - startValue ) * space;
+        if (mCountScale % interval == 0){
+            canvas.drawText(String.valueOf(mCountScale), x-textOffset, 130, currentTextPaint);
+            canvas.drawLine(startX, 10, startX, 80, currentTextPaint);
+
+        }*/
+        //canvas.drawLine(startX, 0, startX, 180, centerLinePaint);
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -143,38 +172,39 @@ public class VerticalRulerView extends View{
         int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                mLastY = event.getY();
+                mLastX = event.getX();
                 if (!mScroller.isFinished()) {
                     mScroller.abortAnimation();
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
                 isFastScroll = false;
-                float moveY = event.getY();
-                currentOffset = (int) (moveY - mLastY);
-                scrollTo(0, getScrollY() - currentOffset);
-                computeAndCallback(getScrollY());
-                mLastY = moveY;
+                float moveX = event.getX();
+                currentOffset = (int) (moveX - mLastX);
+                scrollTo(getScrollX() - currentOffset, 0);
+                computeAndCallback(getScrollX());
+                mLastX = moveX;
                 break;
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
+
                 mVelocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
-                int initialVelocity = (int) mVelocityTracker.getYVelocity();
+                int initialVelocity = (int) mVelocityTracker.getXVelocity();
                 if ((Math.abs(initialVelocity) > mMinimumVelocity)) {
                     isFastScroll = true;
-                    flingY(-initialVelocity);
+                    flingX(-initialVelocity);
                 } else {
-                    int y = getScrollY();
-                    if (y % space != 0) {
-                        y -= y % space;
+                    int x = getScrollX();
+                    if (x % space != 0) {
+                        x -= x % space;
                     }
-                    if (y < -BASELINE_OFFSET) {
-                        y = -BASELINE_OFFSET + BASELINE_OFFSET % space;
-                    } else if (y > (endValue - startValue) * space  - BASELINE_OFFSET) {
-                        y = (endValue - startValue) * space  - BASELINE_OFFSET + BASELINE_OFFSET % space;
+                    if (x < -BASELINE_OFFSET) {
+                        x = -BASELINE_OFFSET + BASELINE_OFFSET % space;
+                    } else if (x > (endValue - startValue) * space  - BASELINE_OFFSET) {
+                        x = (endValue - startValue) * space  - BASELINE_OFFSET + BASELINE_OFFSET % space;
                     }
-                    scrollTo(0, y);
-                    computeAndCallback(y);
+                    scrollTo(x, 0);
+                    computeAndCallback(x);
                 }
                 releaseVelocityTracker();
                 break;
@@ -185,60 +215,36 @@ public class VerticalRulerView extends View{
         return true;
     }
 
+    /**
+     * 惯性滑动
+     *
+     * @param velocityX
+     */
+    public void flingX(int velocityX) {
+        mScroller.fling(getScrollX(), getScrollY(), velocityX, 0, -BASELINE_OFFSET, (endValue - startValue) * space  - BASELINE_OFFSET, 0, 0);
+        awakenScrollBars(mScroller.getDuration());
+        invalidate();
+    }
 
     @Override
     public void computeScroll() {
         if (mScroller.computeScrollOffset()) {
-            int x = mScroller.getCurrY();
-            scrollTo(0, x);
+            int x = mScroller.getCurrX();
+            scrollTo(x, 0);
             computeAndCallback(x);
             postInvalidate();
         } else {
             if (isFastScroll) {
-                int x = mScroller.getCurrY() + BASELINE_OFFSET % space;
+                int x = mScroller.getCurrX() + BASELINE_OFFSET % space;
                 if (x % space != 0) {
                     x -= x % space;
                 }
-                scrollTo(0, x);
+                scrollTo(x, 0);
                 computeAndCallback(x);
                 postInvalidate();
             }
         }
     }
-
-
-
-    /**
-     * 释放 速度追踪器
-     */
-    private void releaseVelocityTracker() {
-        if (mVelocityTracker != null) {
-            mVelocityTracker.recycle();
-            mVelocityTracker = null;
-        }
-    }
-
-
-    /**
-     * 初始化 速度追踪器
-     */
-    private void obtainVelocityTracker() {
-        if (mVelocityTracker == null) {
-            mVelocityTracker = VelocityTracker.obtain();
-        }
-    }
-
-    /**
-     * 惯性滑动
-     *
-     * @param velocityY
-     */
-    public void flingY(int velocityY) {
-        mScroller.fling(getScrollX(), getScrollY(), 0, velocityY, 0, 0, -BASELINE_OFFSET, (endValue - startValue) * space  - BASELINE_OFFSET);
-        awakenScrollBars(mScroller.getDuration());
-        invalidate();
-    }
-
 
     /**
      * 计算并回调位置信息
@@ -254,18 +260,39 @@ public class VerticalRulerView extends View{
             mListener.onRulerSelected((endValue - startValue), startValue  + finalX / space);
         }
     }
+
+    /**
+     * 初始化 速度追踪器
+     */
+    private void obtainVelocityTracker() {
+        if (mVelocityTracker == null) {
+            mVelocityTracker = VelocityTracker.obtain();
+        }
+    }
+
+    /**
+     * 释放 速度追踪器
+     */
+    private void releaseVelocityTracker() {
+        if (mVelocityTracker != null) {
+            mVelocityTracker.recycle();
+            mVelocityTracker = null;
+        }
+    }
+
     public void setRuleListener(AllRulerCallback mListener) {
         this.mListener = mListener;
     }
 
     /**
-     * 设置number的值
+     * 设置第一次显示number的值
      *
      * @param number
      */
     public void setNumber(int number) {
         this.number = number;
     }
+
     /**
      * 设置刻度尺的最小值
      *
